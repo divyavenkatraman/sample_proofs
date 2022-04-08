@@ -1,0 +1,88 @@
+
+(definec app2 (a :tl b :tl) :tl 
+(if (endp a)
+	b
+	(cons (first a) (app2 (rest a) b))))
+
+(definec rev2 (x :tl) :tl (if (endp x)
+	nil
+	(app2 (rev2 (rest x)) (list (first x)))))
+    
+
+(definec tlp (l :all) :bool 
+(if (consp l)
+(tlp (cdr l)) (equal l ())))
+
+
+
+; Lemma comm-rev-app
+(property rev-app (x :tl y :tl)
+  (== (rev2 (app2 x y))
+      (app2 (rev2 y) (rev2 x))))
+
+Conjecture Q1:
+(== (rev2 (rev2 x)) x)
+
+
+
+Proof by: Induction on (tlp x)
+
+  Base Case 1:
+    (=> (!(consp x))
+    	(== (rev2 (rev2 x)) x))
+        
+  Contract Completion:
+  (=> (and (tlp x) (!(consp x)))
+    	(== (rev2 (rev2 x)) x))
+  Context:
+  	C1. (tlp x)
+    C2. (!(consp x))
+    
+  Derived Context:
+  	D1. (== x nil) {C1, C2, def tlp, def consp, MP}
+    
+  Goal: (== (rev2 (rev2 x)) x)
+  Proof:
+  (== (rev2 (rev2 x)) x)
+  = {D1} (== (rev2 (rev2 nil)) nil)
+  = {def rev2, MP} (== nil nil)
+  QED
+  
+  Base Case 2:
+  (=> (and 	
+  			(consp x) 
+            (== (rev2 (rev2 (cdr x))) (cdr x)))
+  (== (rev2 (rev2 x)) x))
+  
+  Contract Completion:
+  (=> (and 	
+  			(consp x) 
+            (tlp x)
+            (== (rev2 (rev2 (cdr x))) (cdr x)))
+  (== (rev2 (rev2 x)) x))  
+  
+  Context:
+  C1. (consp x)
+  C2. (tlp x)
+  C3. (== (rev2 (rev2 (cdr x))) (cdr x))
+  
+  Derived Context:
+  D1. (!(endp x)) {C1, C2, def endp, def consp, def tlp, MP}
+  D2. (== (rev2 (list (car x)))
+          (car x))               {?}
+  
+  Goal: (== (rev2 (rev2 x)) x)
+  Proof:
+   (rev2 (rev2 x)) 
+  = {def rev2, D1, C1, C2, def endp, def consp, def tlp, MP} 
+    (rev2 (app2 (rev2 (cdr x)) (list (car x))))
+  = {Lemma rev-app ((y (list (car x))) (x (rev2 (cdr x))))}
+  	(app2 (rev2 (list (car x))) (rev2 (rev2 (cdr x))))
+  = {C3, def rev, C3, cons axioms, D2} 
+    (app2 (car x) (cdr x))      
+  = {def app2} x
+
+  QED
+  
+QED
+
