@@ -68,10 +68,11 @@ Proof by: Induction on (tlp x)
   
   Derived Context:
   D1. (!(endp x)) {C1, C2, def endp, def consp, def tlp, MP}
-  D2. (== (rev2 (list (car x)))
-          (car x))               {?}
+  D2. (equal (rev2 (list (car x))) (list (car x)))
+  		{C1, C2, D1, MP, car-cdr axioms, cons axioms, def rev2, def list, MP}
   
   Goal: (== (rev2 (rev2 x)) x)
+  
   Proof:
    (rev2 (rev2 x)) 
   = {def rev2, D1, C1, C2, def endp, def consp, def tlp, MP} 
@@ -79,10 +80,9 @@ Proof by: Induction on (tlp x)
   = {Lemma rev-app ((y (list (car x))) (x (rev2 (cdr x))))}
   	(app2 (rev2 (list (car x))) (rev2 (rev2 (cdr x))))
   = {C3, def rev, C3, cons axioms, D2} 
-    (app2 (car x) (cdr x))      
+    (app2 (list (car x)) (cdr x))      
   = {def app2} x
 
   QED
   
 QED
-
